@@ -8,8 +8,11 @@ function preload() {
   game.load.image('background', 'assets/images/back_800.png');
   game.load.image('vatnik', 'assets/images/vatnik.png');
   game.load.image('ground', 'assets/images/ground_800.png');
+  game.load.image('clippy', 'assets/images/clippy.png');
+  game.load.spritesheet('clippy_eyes', 'assets/images/clippy_eyes.png', 100, 100);
   game.load.spritesheet('aarbon', 'assets/images/aarbonSpriteSheet.png', 80, 100);
 
+  game.load.audio('music', 'assets/audio/sotb-stronghold.mp3');
 }
 
 function addRemove(pointer){
@@ -31,13 +34,18 @@ function create() {
 
   game.add.image(0,0,'background');
 
+  var intro = game.add.audio('music', 0.5, true);
+  intro.play();
+
   addAarbon();
+
+  addClippy();
 
   ground = game.add.sprite(400, 542, 'ground');
   game.physics.p2.enable(ground);
   ground.body.static = true;
 
-  var building = game.add.sprite(500, 410, "building");
+  var building = game.add.sprite(500, 380, "building");
   game.physics.p2.enable(building)
   building.body.static = true;
 
@@ -49,6 +57,13 @@ function aarbonContact(body, shapeA, shapeB, equation) {
     debugMessage = 'Hit ' + body.sprite.key;
     aarbon.animations.play('jerk');
   }
+}
+
+function addClippy() {
+  clippy = game.add.sprite(30, 30, 'clippy');
+  clippyEyes = game.add.sprite(30, 30,'clippy_eyes');
+  clippyEyes.animations.add('blink', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 8, true);
+  clippyEyes.animations.play('blink');
 }
 
 function addAarbon() {
