@@ -11,6 +11,7 @@ function preload() {
   game.load.image('clippy', 'assets/images/clippy.png');
   game.load.spritesheet('clippy_eyes', 'assets/images/clippy_eyes.png', 100, 100);
   game.load.spritesheet('aarbon', 'assets/images/aarbonSpriteSheet.png', 80, 100);
+  game.load.spritesheet('ragdoll', 'assets/images/ragdoll_sprite_sheet.png', 29, 181);
 
   game.load.audio('music', 'assets/audio/sotb-stronghold.mp3');
 }
@@ -19,8 +20,9 @@ function addRemove(pointer){
   // checking for bodies under the mouse
   var bodyClicked = game.physics.p2.hitTest(pointer.position);
   if(bodyClicked.length==0){
-  	var building = game.add.sprite(pointer.position.x, pointer.position.y, "vatnik");
-  	game.physics.p2.enable(building);
+    addCorpse(pointer.position.x, pointer.position.y, -100, -100);
+  	// var building = game.add.sprite(pointer.position.x, pointer.position.y, "vatnik");
+  	// game.physics.p2.enable(building);
   }
   else{
   	// destruction of physics body and its graphic asset
@@ -40,6 +42,8 @@ function create() {
   addAarbon();
 
   addClippy();
+
+  
 
   ground = game.add.sprite(400, 542, 'ground');
   game.physics.p2.enable(ground);
@@ -78,6 +82,54 @@ function addAarbon() {
   aarbon.body.onBeginContact.add(aarbonContact, this);
 }
 
+
+var ragdoll;
+function addCorpse(x, y, xvelocity, yvelocity) {
+  ragdoll = {
+    'neck': game.add.sprite(x, y, 'ragdoll', 0),
+    'lHand': game.add.sprite(x, y, 'ragdoll', 1),
+    'lLeg': game.add.sprite(x, y, 'ragdoll', 2),
+    'torso': game.add.sprite(x, y, 'ragdoll', 3),
+    'rLeg': game.add.sprite(x, y, 'ragdoll', 4),
+    'rHand': game.add.sprite(x, y, 'ragdoll', 5),
+    'head': game.add.sprite(x, y, 'ragdoll', 6)
+  }
+
+  shoulders = [-3, -45];
+  hip = [-5, 5];
+
+  for(var o in ragdoll) {
+    game.physics.p2.enable(ragdoll[o]);
+  }
+
+  // torso.body.setRectangle(29,181);
+  // lHand.body.setRectangle(29,181);
+  addConstraint(ragdoll['lHand'], ragdoll['torso'], shoulders);
+  addConstraint(ragdoll['rHand'], ragdoll['torso'], shoulders);
+  addConstraint(ragdoll['neck'], ragdoll['torso'], shoulders);
+  addConstraint(ragdoll['rLeg'], ragdoll['torso'], hip);
+  addConstraint(ragdoll['lLeg'], ragdoll['torso'], hip);
+  addConstraint(ragdoll['neck'], ragdoll['head'], [0,-60]);
+  // constraint =
+  //   game.physics.p2.createRevoluteConstraint(
+  //     ragdoll['lHand'], shoulders, 
+  //     ragdoll['torso'], shoulders, 10000);
+  // constraint.collideConnected = false;
+
+  ragdoll['torso'].body.velocity.x = xvelocity;
+  ragdoll['torso'].body.velocity.y = yvelocity;
+
+  
+}
+
+function addConstraint(part1, part2, joint) {
+  constraint =
+    game.physics.p2.createRevoluteConstraint(
+      part1, joint, 
+      part2, joint, 10000);
+  constraint.collideConnected = false;
+
+}
 
 
 function render() {
